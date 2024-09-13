@@ -16,18 +16,19 @@ type_mapping = {
 generated_classes_set = set()
 
 # Function to generate Python class for a given element and its type
-def generate_class(name, elements):
+def generate_class(name, elements, original_tag):
     if name in generated_classes_set:
         return ""  # Avoid duplicate class generation
     
     generated_classes_set.add(name)  # Mark the class as generated
-    class_template = f"class {name}(BodyContent, tag='{name}', ns=ns_ped.abv, nsmap=ns_ped.get_dict()):\n"
+    # Use the original WSDL tag for the class, instead of the class name
+    class_template = f"class {name}(BodyContent, tag='{original_tag}', ns=ns_ped.abv, nsmap=ns_ped.get_dict()):\n"
     
     for element_name, element_type in elements.items():
         # Handle complex types and lists
         if hasattr(element_type, 'elements'):
             nested_class_name = element_type.name or element_name
-            nested_class = generate_class(nested_class_name, {el[0]: el[1].type for el in element_type.elements})
+            nested_class = generate_class(nested_class_name, {el[0]: el[1].type for el in element_type.elements}, element_name)
             class_template += f"    {element_name}: Optional[{nested_class_name}] = element(tag='{element_name}', ns=ns_ped.abv)\n"
             class_template += nested_class  # Append nested class
         elif hasattr(element_type, 'max_occurs') and element_type.max_occurs != 1:
@@ -60,17 +61,20 @@ def extract_and_generate_classes(wsdl_file_path):
             operations = port.binding._operations
             for operation in operations.values():
                 input_elements = {el[0]: el[1].type for el in operation.input.body.type.elements}
+                
+                # Access the tag name using the body.qname.localname directly
+                request_tag = operation.input.body.qname.localname
+                
                 class_name = f"PRequest{operation.name}" if operation.name != "incluir" else "PRequestPedidoVendaXML"
-                request_class = generate_class(class_name, input_elements)
+                request_class = generate_class(class_name, input_elements, request_tag)
                 generated_classes.append(request_class)
     
     print("\nGenerated request classes:\n")
     for class_def in generated_classes:
         print(class_def)
 
-# Path to the WSDL file (replace with your WSDL file path)
-wsdl_file_path = 'examples\wsdl\ws.pedido.parametro.Service.wsdl'
-#wsdl_file_path = 'BO-ws.pedido.parametro.Service.wsdl'
+# Path to the WSDL file
+wsdl_file_path = './examples/wsdl/ws.pedido.parametro.Service.wsdl'
 
 # Generate classes based on WSDL
 extract_and_generate_classes(wsdl_file_path)
