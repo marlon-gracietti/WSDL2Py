@@ -1,0 +1,206 @@
+<definitions
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+	xmlns:s="http://www.w3.org/2001/XMLSchema"
+	xmlns:s0="http://tempuri.org"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="http://tempuri.org">
+	<types>
+		<s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org">
+			<s:element name="buscarParametro">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" name="pRequest" type="s0:Request"/>
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:complexType name="Request">
+				<s:sequence>
+					<s:element name="dataHoraSolicitacao" type="s:dateTime"/>
+					<s:element minOccurs="0" name="codCliente" type="s:string"/>
+					<s:element minOccurs="0" name="an8Cliente" type="s:string"/>
+					<s:element name="codDependencia" type="s:string"/>
+				</s:sequence>
+			</s:complexType>
+			<s:element name="buscarParametroResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element name="buscarParametroResult" type="s0:Response"/>
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:complexType name="Response">
+				<s:sequence>
+					<s:element minOccurs="0" name="status" type="s:long"/>
+					<s:element minOccurs="0" name="mensagem">
+						<s:simpleType>
+							<s:restriction base="s:string">
+								<s:maxLength value="1024"/>
+							</s:restriction>
+						</s:simpleType>
+					</s:element>
+					<s:element minOccurs="0" name="parametros" type="s0:Parametros"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="Parametros">
+				<s:sequence>
+					<s:element minOccurs="0" name="dataHoraLimitePedidoOp" type="s:dateTime"/>
+					<s:element minOccurs="0" name="dataHoraEncerraProgLog" type="s:dateTime"/>
+					<s:element minOccurs="0" name="dataAtualOperacao" type="s:date"/>
+					<s:element minOccurs="0" name="dataProximaOperacao" type="s:date"/>
+					<s:element minOccurs="0" name="dataLimPedEntrega" type="s:date"/>
+					<s:element minOccurs="0" name="eCalendarizado" type="s:boolean"/>
+					<s:element minOccurs="0" name="datasCalendarizacao" type="s0:ArrayOfDatasCalendarizacaoPairOfdatasCalendarizacaoKeyDatasCalendarizacao"/>
+					<s:element minOccurs="0" name="volumeMinCalend" type="s:decimal"/>
+					<s:element minOccurs="0" name="temDescGradeNoturna" type="s:boolean"/>
+					<s:element minOccurs="0" name="podeEscolherGrade" type="s:boolean"/>
+					<s:element minOccurs="0" name="podePedForaPrazo" type="s:boolean"/>
+					<s:element minOccurs="0" name="gradesHorarias" type="s0:ArrayOfGradeHorariaPairOfgradesHorariasKeyGradeHoraria"/>
+					<s:element minOccurs="0" name="exigeDataOper" type="s:boolean"/>
+					<s:element minOccurs="0" name="datasOperacionais" type="s0:ArrayOfDatasOperacionaisPairOfdatasOperacionaisKeyDatasOperacionais"/>
+					<s:element minOccurs="0" name="exigePagAntecipado" type="s:boolean"/>
+					<s:element minOccurs="0" name="podeObsAlocacao" type="s:boolean"/>
+					<s:element minOccurs="0" name="indZonaRestEntNot" type="s:boolean"/>
+					<s:element minOccurs="0" name="podeInserirPedidoDia" type="s:boolean"/>
+					<s:element minOccurs="0" name="dataMaximaSelPortal" type="s:date"/>
+					<s:element minOccurs="0" name="fracionarItemPedido" type="s:string"/>
+					<s:element minOccurs="0" name="volumeMinimoDescontoFrete" type="s:string"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="ArrayOfDatasCalendarizacaoPairOfdatasCalendarizacaoKeyDatasCalendarizacao">
+				<s:sequence>
+					<s:element maxOccurs="unbounded" minOccurs="0" name="DatasCalendarizacao" nillable="true" type="s0:PairOfdatasCalendarizacaoKeyDatasCalendarizacao"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="PairOfdatasCalendarizacaoKeyDatasCalendarizacao">
+				<s:complexContent>
+					<s:extension base="s0:DatasCalendarizacao">
+						<s:attribute name="datasCalendarizacaoKey" type="s:string" use="required"/>
+					</s:extension>
+				</s:complexContent>
+			</s:complexType>
+			<s:complexType name="DatasCalendarizacao">
+				<s:sequence>
+					<s:element minOccurs="0" name="dataCalendarizacao" type="s:date"/>
+					<s:element minOccurs="0" name="volumeMinimo" type="s:long"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="ArrayOfGradeHorariaPairOfgradesHorariasKeyGradeHoraria">
+				<s:sequence>
+					<s:element maxOccurs="unbounded" minOccurs="0" name="GradeHoraria" nillable="true" type="s0:PairOfgradesHorariasKeyGradeHoraria"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="PairOfgradesHorariasKeyGradeHoraria">
+				<s:complexContent>
+					<s:extension base="s0:GradeHoraria">
+						<s:attribute name="gradesHorariasKey" type="s:string" use="required"/>
+					</s:extension>
+				</s:complexContent>
+			</s:complexType>
+			<s:complexType name="GradeHoraria">
+				<s:sequence>
+					<s:element minOccurs="0" name="diaSemana" type="s:string"/>
+					<s:element minOccurs="0" name="inicio" type="s:time"/>
+					<s:element minOccurs="0" name="final" type="s:time"/>
+					<s:element minOccurs="0" name="eLiberadaCliente" type="s:long"/>
+					<s:element minOccurs="0" name="temPrazoAdicionalBoleto" type="s:boolean"/>
+					<s:element minOccurs="0" name="temRedGradeNoturna" type="s:boolean"/>
+					<s:element minOccurs="0" name="diasPrazoAdicionalBoleto" type="s:long"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="ArrayOfDatasOperacionaisPairOfdatasOperacionaisKeyDatasOperacionais">
+				<s:sequence>
+					<s:element maxOccurs="unbounded" minOccurs="0" name="DatasOperacionais" nillable="true" type="s0:PairOfdatasOperacionaisKeyDatasOperacionais"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="PairOfdatasOperacionaisKeyDatasOperacionais">
+				<s:complexContent>
+					<s:extension base="s0:DatasOperacionais">
+						<s:attribute name="datasOperacionaisKey" type="s:string" use="required"/>
+					</s:extension>
+				</s:complexContent>
+			</s:complexType>
+			<s:complexType name="DatasOperacionais">
+				<s:sequence>
+					<s:element minOccurs="0" name="dataOperacional" type="s:date"/>
+					<s:element minOccurs="0" name="temPercentualLinearizacao" type="s:boolean"/>
+					<s:element minOccurs="0" name="temPrazoLinearizacao" type="s:boolean"/>
+					<s:element minOccurs="0" name="temRedGradeNoturna" type="s:boolean"/>
+					<s:element minOccurs="0" name="temNegociacaoPontualFrete" type="s:boolean"/>
+					<s:element minOccurs="0" name="produtosNegociacaoPontual" type="s0:ArrayOfprodutosNegociacaoPontualItemPairOfprodutosNegociacaoPontualKeyString"/>
+					<s:element minOccurs="0" name="temPrecoEspecial" type="s:boolean"/>
+					<s:element minOccurs="0" name="produtosPrecoEspecial" type="s0:ArrayOfprodutosPrecoEspecialItemPairOfprodutosPrecoEspecialKeyString"/>
+					<s:element minOccurs="0" name="temIndisponibilidade" type="s:boolean"/>
+					<s:element minOccurs="0" name="produtosIndisponibilidade" type="s0:ArrayOfprodutosIndisponibilidadeItemPairOfprodutosIndisponibilidadeKeyString"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="ArrayOfprodutosNegociacaoPontualItemPairOfprodutosNegociacaoPontualKeyString">
+				<s:sequence>
+					<s:element maxOccurs="unbounded" minOccurs="0" name="produtosNegociacaoPontualItem" nillable="true" type="s0:PairOfprodutosNegociacaoPontualKeyString"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="PairOfprodutosNegociacaoPontualKeyString">
+				<s:simpleContent>
+					<s:extension base="s:string">
+						<s:attribute name="produtosNegociacaoPontualKey" type="s:string" use="required"/>
+					</s:extension>
+				</s:simpleContent>
+			</s:complexType>
+			<s:complexType name="ArrayOfprodutosPrecoEspecialItemPairOfprodutosPrecoEspecialKeyString">
+				<s:sequence>
+					<s:element maxOccurs="unbounded" minOccurs="0" name="produtosPrecoEspecialItem" nillable="true" type="s0:PairOfprodutosPrecoEspecialKeyString"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="PairOfprodutosPrecoEspecialKeyString">
+				<s:simpleContent>
+					<s:extension base="s:string">
+						<s:attribute name="produtosPrecoEspecialKey" type="s:string" use="required"/>
+					</s:extension>
+				</s:simpleContent>
+			</s:complexType>
+			<s:complexType name="ArrayOfprodutosIndisponibilidadeItemPairOfprodutosIndisponibilidadeKeyString">
+				<s:sequence>
+					<s:element maxOccurs="unbounded" minOccurs="0" name="produtosIndisponibilidadeItem" nillable="true" type="s0:PairOfprodutosIndisponibilidadeKeyString"/>
+				</s:sequence>
+			</s:complexType>
+			<s:complexType name="PairOfprodutosIndisponibilidadeKeyString">
+				<s:simpleContent>
+					<s:extension base="s:string">
+						<s:attribute name="produtosIndisponibilidadeKey" type="s:string" use="required"/>
+					</s:extension>
+				</s:simpleContent>
+			</s:complexType>
+		</s:schema>
+	</types>
+	<message name="buscarParametroSoapIn">
+		<part name="parameters" element="s0:buscarParametro"/>
+	</message>
+	<message name="buscarParametroSoapOut">
+		<part name="parameters" element="s0:buscarParametroResponse"/>
+	</message>
+	<portType name="buscarParametroSoap">
+		<operation name="buscarParametro">
+			<input message="s0:buscarParametroSoapIn"/>
+			<output message="s0:buscarParametroSoapOut"/>
+		</operation>
+	</portType>
+	<binding name="buscarParametroSoap" type="s0:buscarParametroSoap">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<operation name="buscarParametro">
+			<soap:operation soapAction="http://tempuri.org/cbpi.abadi.eai.ws.pedido.parametro.Service.buscarParametro" style="document"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+		</operation>
+	</binding>
+	<service name="buscarParametro">
+		<port name="buscarParametroSoap" binding="s0:buscarParametroSoap">
+			<soap:address location="http://172.20.49.50:8972/csp/abadi/cbpi.abadi.eai.ws.pedido.parametro.Service.cls"/>
+		</port>
+	</service>
+</definitions>
