@@ -40,17 +40,17 @@ def generate_class(name, elements, original_tag, namespace):
                 nested_class = generate_class(nested_class_name, element.type.elements, element_name, namespace)
                 if nested_class:  # Ensure only non-empty classes are added
                     nested_classes.append(nested_class)  # Store nested class for later
-            class_template += f"    {element_name}: Optional[{nested_class_name}] = element(tag='{element_name}', ns=ns_par.abv)\n"
+            class_template += f"    {element_name}_: Optional[{nested_class_name}] = element(tag='{element_name}', ns=ns_par.abv)\n"
         elif hasattr(element, 'max_occurs') and element.max_occurs != 1:
             # Handle list types
             item_type = element.type.name if hasattr(element.type, 'name') else 'str'
-            class_template += f"    {element_name}: Optional[List[{item_type}]] = element(tag='{element_name}', ns=ns_par.abv)\n"
+            class_template += f"    {element_name}_: Optional[List[{item_type}]] = element(tag='{element_name}', ns=ns_par.abv)\n"
         else:
             # Handle primitive types
             python_type = type_mapping.get(element.type.name, 'str')
             if is_optional:
                 python_type = f"Optional[{python_type}]"
-            class_template += f"    {element_name}: {python_type} = element(tag='{element_name}', ns=ns_par.abv)\n"
+            class_template += f"    {element_name}_: {python_type} = element(tag='{element_name}', ns=ns_par.abv)\n"
     
     # Ensure nested classes are appended before the current class
     for nested_class in nested_classes:
@@ -84,11 +84,11 @@ def extract_and_generate_classes(wsdl_file_path, class_type='request'):
                 if class_type == 'request':
                     input_elements = operation.input.body.type.elements
                     request_tag = operation.input.body.qname.localname
-                    class_name = f"PRequest{operation.name.capitalize()}"
+                    class_name = f"Request{operation.name.capitalize()}"
                 else:
                     input_elements = operation.output.body.type.elements
                     request_tag = operation.output.body.qname.localname
-                    class_name = f"PResponse{operation.name.capitalize()}"
+                    class_name = f"Response{operation.name.capitalize()}"
                 
                 generate_class(class_name, input_elements, request_tag, namespace=None)
     
@@ -98,7 +98,8 @@ def extract_and_generate_classes(wsdl_file_path, class_type='request'):
         print(class_def)
 
 # Path to the WSDL file
-wsdl_file_path = './ws.pedido.parametro.Service.wsdl'
+# wsdl_file_path = './ws.pedido.parametro.Service.wsdl'
+wsdl_file_path = './sesuite.wsdl'
 
 # Generate request and response classes
 # extract_and_generate_classes(wsdl_file_path, class_type='request')  # For request
