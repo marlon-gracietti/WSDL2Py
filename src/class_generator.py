@@ -17,15 +17,16 @@ generated_classes_set = set()
 generated_classes_list = []  # Store classes in order
 
 # Recursive function to extract minOccurs and generate the Python class for a given element
-def generate_class(name, elements, original_tag, namespace):
+def generate_class(name, elements, original_tag, class_type, namespace=None):
     if name in generated_classes_set:
         return ""  # Avoid duplicate class generation
     
     generated_classes_set.add(name)  # Mark the class as generated
     
-    # Use the original WSDL tag for the class, instead of the class name
-    class_template = f"class {name}(BodyContent, tag='{original_tag}', ns=ns_par.abv, nsmap=ns_par.get_dict()):\n"
-    
+    # Use the original WSDL tag for the class, and switch base class based on class_type
+    base_class = 'BodyContent' if class_type == 'request' else 'SoapBody'
+    class_template = f"class {name}({base_class}, tag='{original_tag}', ns=ns_par.abv, nsmap=ns_par.get_dict()):\n"
+
     nested_classes = []  # Store nested class definitions
 
     for element_name, element in elements:
@@ -37,7 +38,7 @@ def generate_class(name, elements, original_tag, namespace):
         if hasattr(element.type, 'elements'):
             nested_class_name = f"{name}{element_name.capitalize()}"
             if nested_class_name not in generated_classes_set:
-                nested_class = generate_class(nested_class_name, element.type.elements, element_name, namespace)
+                nested_class = generate_class(nested_class_name, element.type.elements, element_name, class_type, namespace)
                 if nested_class:  # Ensure only non-empty classes are added
                     nested_classes.append(nested_class)  # Store nested class for later
             class_template += f"    {element_name}_: Optional[{nested_class_name}] = element(tag='{element_name}', ns=ns_par.abv)\n"
@@ -90,7 +91,7 @@ def extract_and_generate_classes(wsdl_file_path, class_type='request'):
                     request_tag = operation.output.body.qname.localname
                     class_name = f"Response{operation.name.capitalize()}"
                 
-                generate_class(class_name, input_elements, request_tag, namespace=None)
+                generate_class(class_name, input_elements, request_tag, class_type, namespace=None)
     
     # Print the classes in the correct order    
     print(f"\n#### Generated {class_type} classes from {os.path.basename(wsdl_file_path)} file: \n")
@@ -101,7 +102,7 @@ def extract_and_generate_classes(wsdl_file_path, class_type='request'):
 # wsdl_file_path = './ws.pedido.parametro.Service.wsdl'
 # wsdl_file_path = './sesuite.wsdl'
 wsdl_file_path = './ws.notificacaoPortal.Service.xml'
-
+# wsdl_file_path = './boNotificacaoPortalWSService.wsdl.xml'
 
 # Generate request and response classes
 # extract_and_generate_classes(wsdl_file_path, class_type='request')  # For request
