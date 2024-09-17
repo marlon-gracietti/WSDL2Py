@@ -24,7 +24,7 @@ def generate_class(name, elements, original_tag, namespace):
     generated_classes_set.add(name)  # Mark the class as generated
     
     # Use the original WSDL tag for the class, instead of the class name
-    class_template = f"class {name}(SoapBody, tag='{original_tag}', ns=ns_par.abv, nsmap=ns_par.get_dict()):\n"
+    class_template = f"class {name}(BodyContent, tag='{original_tag}', ns=ns_par.abv, nsmap=ns_par.get_dict()):\n"
     
     nested_classes = []  # Store nested class definitions
 
@@ -92,14 +92,16 @@ def extract_and_generate_classes(wsdl_file_path, class_type='request'):
                 
                 generate_class(class_name, input_elements, request_tag, namespace=None)
     
-    # Print the classes in the correct order
-    print(f"\nGenerated {class_type} classes in the correct order:\n")
+    # Print the classes in the correct order    
+    print(f"\n#### Generated {class_type} classes from {os.path.basename(wsdl_file_path)} file: \n")
     for class_def in generated_classes_list:  # No need to reverse, order is correct
         print(class_def)
 
 # Path to the WSDL file
 # wsdl_file_path = './ws.pedido.parametro.Service.wsdl'
-wsdl_file_path = './sesuite.wsdl'
+# wsdl_file_path = './sesuite.wsdl'
+wsdl_file_path = './ws.notificacaoPortal.Service.xml'
+
 
 # Generate request and response classes
 # extract_and_generate_classes(wsdl_file_path, class_type='request')  # For request
