@@ -1,6 +1,6 @@
 from zeep import Client
 from collections import defaultdict
-import os
+import os  # Make sure this line is added to import the 'os' module
 from typing import Optional, List
 
 # Type mapping from WSDL types to Python types
@@ -31,8 +31,6 @@ def generate_class(name, elements, original_tag, namespace):
         min_occurs = element.min_occurs if hasattr(element, 'min_occurs') else 1  # Default to 1 if not set
         is_optional = min_occurs == 0
 
-        print(f"Element: {element_name}, minOccurs: {min_occurs}, Is Optional: {is_optional}")
-        
         # Handle complex types and lists
         if hasattr(element.type, 'elements'):
             nested_class_name = f"{name}{element_name.capitalize()}"
@@ -52,8 +50,8 @@ def generate_class(name, elements, original_tag, namespace):
     
     return class_template
 
-# Function to extract and generate request classes from WSDL
-def extract_and_generate_classes(wsdl_file_path):
+# Function to extract and generate request/response classes from WSDL
+def extract_and_generate_classes(wsdl_file_path, class_type='request'):
     if not os.path.exists(wsdl_file_path):
         print(f"Error: WSDL file not found at '{wsdl_file_path}'. Please check the file path.")
         return
@@ -71,22 +69,25 @@ def extract_and_generate_classes(wsdl_file_path):
             operations = port.binding._operations
             
             for operation in operations.values():
-                input_elements = operation.input.body.type.elements
+                if class_type == 'request':
+                    input_elements = operation.input.body.type.elements
+                    request_tag = operation.input.body.qname.localname
+                    class_name = f"PRequest{operation.name.capitalize()}"
+                else:
+                    input_elements = operation.output.body.type.elements
+                    request_tag = operation.output.body.qname.localname
+                    class_name = f"PResponse{operation.name.capitalize()}"
                 
-                # Access the tag name using the body.qname.localname directly
-                request_tag = operation.input.body.qname.localname
-                
-                # Dynamic class naming based on operation name
-                class_name = f"PRequest{operation.name.capitalize()}"
                 request_class = generate_class(class_name, input_elements, request_tag, namespace=None)
                 generated_classes.append(request_class)
     
-    print("\nGenerated request classes:\n")
+    print(f"\nGenerated {class_type} classes:\n")
     for class_def in generated_classes:
         print(class_def)
 
 # Path to the WSDL file
 wsdl_file_path = './ws.pedido.parametro.Service.wsdl'
 
-# Generate classes based on WSDL
-extract_and_generate_classes(wsdl_file_path)
+# Generate request and response classes
+extract_and_generate_classes(wsdl_file_path, class_type='request')  # For request
+# extract_and_generate_classes(wsdl_file_path, class_type='response')  # For response
