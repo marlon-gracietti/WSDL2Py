@@ -1,6 +1,7 @@
 from zeep import Client
 from collections import defaultdict
 import os
+from typing import Optional, List
 
 # Type mapping from WSDL types to Python types
 type_mapping = {
@@ -15,30 +16,39 @@ type_mapping = {
 # To store generated classes, avoiding duplicates
 generated_classes_set = set()
 
-# Function to generate Python class for a given element and its type
-def generate_class(name, elements, original_tag):
+# Recursive function to extract minOccurs and generate the Python class for a given element
+def generate_class(name, elements, original_tag, namespace):
     if name in generated_classes_set:
         return ""  # Avoid duplicate class generation
     
     generated_classes_set.add(name)  # Mark the class as generated
-    # Use the original WSDL tag for the class, instead of the class name
-    class_template = f"class {name}(BodyContent, tag='{original_tag}', ns=ns_ped.abv, nsmap=ns_ped.get_dict()):\n"
     
-    for element_name, element_type in elements.items():
+    # Use the original WSDL tag for the class, instead of the class name
+    class_template = f"class {name}(BodyContent, tag='{original_tag}', ns=ns_par.abv, nsmap=ns_par.get_dict()):\n"
+    
+    for element_name, element in elements:
+        # Retrieve the minOccurs value for each element
+        min_occurs = element.min_occurs if hasattr(element, 'min_occurs') else 1  # Default to 1 if not set
+        is_optional = min_occurs == 0
+
+        print(f"Element: {element_name}, minOccurs: {min_occurs}, Is Optional: {is_optional}")
+        
         # Handle complex types and lists
-        if hasattr(element_type, 'elements'):
-            nested_class_name = element_type.name or element_name
-            nested_class = generate_class(nested_class_name, {el[0]: el[1].type for el in element_type.elements}, element_name)
-            class_template += f"    {element_name}: Optional[{nested_class_name}] = element(tag='{element_name}', ns=ns_ped.abv)\n"
+        if hasattr(element.type, 'elements'):
+            nested_class_name = f"{name}{element_name.capitalize()}"
+            nested_class = generate_class(nested_class_name, element.type.elements, element_name, namespace)
+            class_template += f"    {element_name}: Optional[{nested_class_name}] = element(tag='{element_name}', ns=ns_par.abv)\n"
             class_template += nested_class  # Append nested class
-        elif hasattr(element_type, 'max_occurs') and element_type.max_occurs != 1:
+        elif hasattr(element, 'max_occurs') and element.max_occurs != 1:
             # Handle list types
-            item_type = element_type.type.name if hasattr(element_type.type, 'name') else 'str'
-            class_template += f"    {element_name}: Optional[list[{item_type}]] = element(tag='{element_name}', ns=ns_ped.abv)\n"
+            item_type = element.type.name if hasattr(element.type, 'name') else 'str'
+            class_template += f"    {element_name}: Optional[List[{item_type}]] = element(tag='{element_name}', ns=ns_par.abv)\n"
         else:
             # Handle primitive types
-            python_type = type_mapping.get(element_type.name, 'Optional[str]')
-            class_template += f"    {element_name}: Optional[{python_type}] = element(tag='{element_name}', ns=ns_ped.abv)\n"
+            python_type = type_mapping.get(element.type.name, 'str')
+            if is_optional:
+                python_type = f"Optional[{python_type}]"
+            class_template += f"    {element_name}: {python_type} = element(tag='{element_name}', ns=ns_par.abv)\n"
     
     return class_template
 
@@ -59,14 +69,16 @@ def extract_and_generate_classes(wsdl_file_path):
     for service in client.wsdl.services.values():
         for port in service.ports.values():
             operations = port.binding._operations
+            
             for operation in operations.values():
-                input_elements = {el[0]: el[1].type for el in operation.input.body.type.elements}
+                input_elements = operation.input.body.type.elements
                 
                 # Access the tag name using the body.qname.localname directly
                 request_tag = operation.input.body.qname.localname
                 
-                class_name = f"PRequest{operation.name}" if operation.name != "incluir" else "PRequestPedidoVendaXML"
-                request_class = generate_class(class_name, input_elements, request_tag)
+                # Dynamic class naming based on operation name
+                class_name = f"PRequest{operation.name.capitalize()}"
+                request_class = generate_class(class_name, input_elements, request_tag, namespace=None)
                 generated_classes.append(request_class)
     
     print("\nGenerated request classes:\n")
@@ -74,8 +86,7 @@ def extract_and_generate_classes(wsdl_file_path):
         print(class_def)
 
 # Path to the WSDL file
-# wsdl_file_path = './examples/wsdl/ws.pedido.parametro.Service.wsdl'
-wsdl_file_path = './examples/wsdl/BO-sesuite.wsdl'
+wsdl_file_path = './ws.pedido.parametro.Service.wsdl'
 
 # Generate classes based on WSDL
 extract_and_generate_classes(wsdl_file_path)
