@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import matplotlib.pyplot as plt
 import networkx as nx
+import os
 
 # Parse the WSDL file and extract relevant information
 def parse_wsdl(wsdl_file):
@@ -37,7 +38,7 @@ def parse_wsdl(wsdl_file):
     return services, operations
 
 # Visualize the services and their operations
-def visualize_infrastructure(services, operations):
+def visualize_infrastructure(services, operations, output_file):
     G = nx.DiGraph()
     
     # Add nodes for services and their bindings
@@ -57,19 +58,29 @@ def visualize_infrastructure(services, operations):
     pos = nx.spring_layout(G, seed=42)
     nx.draw(G, pos, with_labels=True, node_size=3000, node_color='lightblue', font_size=10, font_weight='bold', arrows=True)
     plt.title("WSDL Service Infrastructure")
-    plt.show()
+    
+    # Save the figure to a file
+    plt.savefig(output_file)
+    plt.close()
 
 # Main function to parse and visualize the WSDL file
 def main():
     # wsdl_file = 'boNotificacaoPortalWSService.wsdl.xml'  # Replace with your WSDL file path
-    wsdl_file = 'ws.notificacaoPortal.Service.xml'  # Replace with your WSDL file path
+    wsdl_file = './examples/wsdl/ws.pedido.parametro.Service.wsdl.xml'  # Replace with your WSDL file path
+    # wsdl_file = r'.\examples\wsdl\boNotificacaoPortalWSService.wsdl.xml'  # Replace with your WSDL file path
+
     
+    # Define output directory and file
+    output_dir = 'docs/img'
+    os.makedirs(output_dir, exist_ok=True)  # Create folder if it doesn't exist
+    output_file = os.path.join(output_dir, os.path.basename(wsdl_file).replace('.xml', '.png'))  # Save as .png with the same name as the input file
     
     # Parse the WSDL file to extract services and operations
     services, operations = parse_wsdl(wsdl_file)
     
-    # Visualize the infrastructure
-    visualize_infrastructure(services, operations)
+    # Visualize the infrastructure and save the image
+    visualize_infrastructure(services, operations, output_file)
+    print(f"Image saved to {output_file}")
 
 # Run the main function
 if __name__ == "__main__":

@@ -74,7 +74,8 @@ def extract_and_generate_classes(wsdl_file_path):
         print(class_def)
 
 # Path to the WSDL file
-wsdl_file_path = './examples/wsdl/ws.pedido.parametro.Service.wsdl'
+# wsdl_file_path = './examples/wsdl/ws.pedido.parametro.Service.wsdl'
+wsdl_file_path = './examples/wsdl/BO-sesuite.wsdl'
 
 # Generate classes based on WSDL
 extract_and_generate_classes(wsdl_file_path)
